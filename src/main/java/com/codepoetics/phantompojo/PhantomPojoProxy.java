@@ -6,9 +6,12 @@ import org.pcollections.PMap;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> implements InvocationHandler, PhantomPojo<B> {
 
@@ -37,15 +40,27 @@ final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> im
             return method.invoke(this, args);
         }
 
-        Object result = propertyValues.get(Name.of(method.getName()).withoutFirst().toCamelCase());
+        return promote(method.getGenericReturnType(),
+                propertyValues.get(Name.of(method.getName()).withoutFirst().toCamelCase()));
+    }
 
-        if (Map.class.isAssignableFrom(result.getClass())
-                && PhantomPojo.class.isAssignableFrom(method.getReturnType())) {
-            return PhantomPojo.wrapping((Map<String, Object>) result)
-                    .with((Class<? extends PhantomPojo<?>>) method.getReturnType());
+    private Object promote(Type targetType, Object actual) {
+        Class<?> targetClass = ReflectionUtils.rawTypeOf(targetType);
+
+        if (Map.class.isAssignableFrom(actual.getClass())
+            && PhantomPojo.class.isAssignableFrom(targetClass)) {
+                return PhantomPojo.wrapping((Map<String, Object>) actual)
+                        .with((Class<? extends PhantomPojo<?>>) targetClass);
         }
 
-        return result;
+        if (List.class.isAssignableFrom(actual.getClass())) {
+            Type listType = ReflectionUtils.getFirstTypeArgument(targetType);
+            return ((List<?>) actual).stream()
+                    .map(item -> promote(listType, item))
+                    .collect(Collectors.toList());
+        }
+
+        return actual;
     }
 
     private boolean isTerminal(Method method) {

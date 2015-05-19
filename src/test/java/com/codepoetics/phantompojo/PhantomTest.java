@@ -157,4 +157,27 @@ public class PhantomTest {
 
         assertThat(person.getAddress().getPostcode(), equalTo("RA8 81T"));
     }
+
+    @Test public void
+    automatic_promotion_from_list_of_maps_to_list_of_phantoms() {
+        Map<String, Object> harryProperties = new HashMap<>();
+        harryProperties.put("name", "Harry");
+        harryProperties.put("age", 37);
+
+        Map<String, Object> sallyProperties = new HashMap<>();
+        sallyProperties.put("name", "Sally");
+        sallyProperties.put("age", 38);
+
+        Map<String, Object> steveProperties = new HashMap<>();
+        steveProperties.put("name", "Steve");
+        steveProperties.put("age", 29);
+
+        harryProperties.put("friends", Arrays.asList(sallyProperties, steveProperties));
+
+        Person harry = PhantomPojo.wrapping(harryProperties).with(Person.class);
+        Person sally = PhantomPojo.wrapping(sallyProperties).with(Person.class);
+        Person steve = PhantomPojo.wrapping(steveProperties).with(Person.class);
+
+        assertThat(harry.getFriends(), hasItems(sally, steve));
+    }
 }

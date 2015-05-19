@@ -20,20 +20,10 @@ public final class PhantomBuilder<T extends PhantomPojo<B>, B extends Supplier<T
 
     private static <B extends Supplier<T>, T extends PhantomPojo<B>> Class<? extends B> getBuilderClass(Class<? extends T> targetClass) {
         return Stream.of(targetClass.getGenericInterfaces())
-                .filter(t -> PhantomPojo.class.equals(rawTypeOf(t)))
-                .map(PhantomBuilder::<B>getFirstTypeArgument)
+                .filter(t -> PhantomPojo.class.equals(ReflectionUtils.rawTypeOf(t)))
+                .map(ReflectionUtils::<B>getFirstTypeArgument)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
-    }
-
-    private static Class<?> rawTypeOf(Type type) {
-        return (Class<?>) (type instanceof ParameterizedType
-                ? ((ParameterizedType) type).getRawType()
-                : type);
-    }
-
-    private static <B> Class<? extends B> getFirstTypeArgument(Type type) {
-        return (Class<? extends B>) ((ParameterizedType) type).getActualTypeArguments()[0];
     }
 
     static <T, B extends Supplier<T>> B building(Class<? extends T> targetClass, Class<? extends B> builderClass, PMap<String, Object> propertyValues) {
