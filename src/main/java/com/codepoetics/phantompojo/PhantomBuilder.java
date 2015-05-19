@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class PhantomBuilder<T extends PhantomPojo<B>, B extends Supplier<T>> implements InvocationHandler {
+public final class PhantomBuilder<T extends PhantomPojo<B>, B extends Supplier<T>> implements DispatchingInvocationHandler, Supplier<T> {
     public static <B extends Supplier<T>, T extends PhantomPojo<B>> B building(Class<? extends T> targetClass) {
         return building(targetClass, getBuilderClass(targetClass), HashTreePMap.empty());
     }
@@ -23,7 +23,7 @@ public final class PhantomBuilder<T extends PhantomPojo<B>, B extends Supplier<T
                 .filter(t -> PhantomPojo.class.equals(ReflectionUtils.rawTypeOf(t)))
                 .map(ReflectionUtils::<B>getFirstTypeArgument)
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalArgumentException("Cannot infer builder class from class " + targetClass));
     }
 
     static <T, B extends Supplier<T>> B building(Class<? extends T> targetClass, Class<? extends B> builderClass, PMap<String, Object> propertyValues) {
@@ -43,15 +43,7 @@ public final class PhantomBuilder<T extends PhantomPojo<B>, B extends Supplier<T
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getDeclaringClass().equals(Object.class)) {
-            return method.invoke(this, args);
-        }
-
-        if (method.getDeclaringClass().equals(Supplier.class)) {
-            return PhantomPojoProxy.proxying(targetClass, builderClass, propertyValues);
-        }
-
+    public Object invokeMissing(Object proxy, Method method, Object[] args) throws Throwable {
         String propertyName = getFieldName(method);
         if (args[0].getClass().isArray()) {
             return saveProperty(propertyName, Stream.of((Object[]) args[0]).map(this::reify).collect(Collectors.toList()));
@@ -72,5 +64,10 @@ public final class PhantomBuilder<T extends PhantomPojo<B>, B extends Supplier<T
         return arg instanceof Supplier
                 ? ((Supplier<?>) arg).get()
                 : arg;
+    }
+
+    @Override
+    public T get() {
+        return PhantomPojoProxy.proxying(targetClass, builderClass, propertyValues);
     }
 }

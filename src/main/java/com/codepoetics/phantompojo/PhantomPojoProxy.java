@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> implements InvocationHandler, PhantomPojo<B> {
+final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> implements DispatchingInvocationHandler, PhantomPojo<B> {
 
     static <T extends PhantomPojo<B>, B extends Supplier<T>> T proxying(
             Class<? extends T> klass,
@@ -35,11 +35,7 @@ final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> im
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (isTerminal(method)) {
-            return method.invoke(this, args);
-        }
-
+    public Object invokeMissing(Object proxy, Method method, Object[] args) throws Throwable {
         return promote(method.getGenericReturnType(),
                 propertyValues.get(Name.of(method.getName()).withoutFirst().toCamelCase()));
     }
@@ -61,11 +57,6 @@ final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> im
         }
 
         return actual;
-    }
-
-    private boolean isTerminal(Method method) {
-        return method.getDeclaringClass().equals(Object.class)
-                || method.getDeclaringClass().equals(PhantomPojo.class);
     }
 
     @Override

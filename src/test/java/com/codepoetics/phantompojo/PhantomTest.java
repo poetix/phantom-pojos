@@ -51,6 +51,10 @@ public class PhantomTest {
         int getAge();
         List<Person> getFriends();
         Address getAddress();
+
+        default String getPostcode() {
+            return getAddress().getPostcode();
+        }
     }
 
     @Test public void
@@ -179,5 +183,17 @@ public class PhantomTest {
         Person steve = PhantomPojo.wrapping(steveProperties).with(Person.class);
 
         assertThat(harry.getFriends(), hasItems(sally, steve));
+    }
+
+    @Test public void
+    default_methods() {
+        Person harry = Person.builder()
+                .withName("Harry")
+                .withAddress(Address.builder()
+                        .withAddressLines("23 Acacia Avenue", "Surbiton")
+                        .withPostcode("VB6 5UX"))
+                .get();
+
+        assertThat(harry.getPostcode(), equalTo("VB6 5UX"));
     }
 }
