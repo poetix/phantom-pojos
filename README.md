@@ -10,7 +10,6 @@ public interface Person extends PhantomPojo<Person.Builder> {
         Builder withName(String name);
         Builder withAge(int age);
         Builder withFriends(Builder...friendBuilders);
-        Builder withAddress(Address address);
         Builder withAddress(Address.Builder addressBuilder);
     }
 
