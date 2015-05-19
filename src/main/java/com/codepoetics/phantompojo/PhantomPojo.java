@@ -18,7 +18,9 @@ public interface PhantomPojo<B extends Supplier<? extends PhantomPojo<?>>> {
     }
 
     static PropertiesCapture wrapping(Map<String, Object> properties) {
-        return wrapping(HashTreePMap.from(properties));
+        return properties instanceof PMap
+            ? wrapping((PMap<String, Object>) properties)
+            : wrapping(HashTreePMap.from(properties));
     }
 
     static PropertiesCapture wrapping(PMap<String, Object> properties) {

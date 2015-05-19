@@ -2,6 +2,8 @@ package com.codepoetics.phantompojo;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -138,5 +140,21 @@ public class PhantomTest {
         Person rewrapped = PhantomPojo.wrapping(properties).with(Person.class);
 
         assertThat(rewrapped.getName(), equalTo("Harry"));
+    }
+
+    @Test public void
+    automatic_promotion_from_map_to_phantom() {
+        Map<String, Object> addressProperties = new HashMap<>();
+        addressProperties.put("addressLines", Arrays.asList("67 Penguin Street", "Cinderford"));
+        addressProperties.put("postcode", "RA8 81T");
+
+        Map<String, Object> personProperties = new HashMap<>();
+        personProperties.put("name", "Harry");
+        personProperties.put("age", 37);
+        personProperties.put("address", addressProperties);
+
+        Person person = PhantomPojo.wrapping(personProperties).with(Person.class);
+
+        assertThat(person.getAddress().getPostcode(), equalTo("RA8 81T"));
     }
 }

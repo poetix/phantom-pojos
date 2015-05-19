@@ -6,7 +6,6 @@ import org.pcollections.PMap;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -38,7 +37,15 @@ final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> im
             return method.invoke(this, args);
         }
 
-        return propertyValues.get(Name.of(method.getName()).withoutFirst().toCamelCase());
+        Object result = propertyValues.get(Name.of(method.getName()).withoutFirst().toCamelCase());
+
+        if (Map.class.isAssignableFrom(result.getClass())
+                && PhantomPojo.class.isAssignableFrom(method.getReturnType())) {
+            return PhantomPojo.wrapping((Map<String, Object>) result)
+                    .with((Class<? extends PhantomPojo<?>>) method.getReturnType());
+        }
+
+        return result;
     }
 
     private boolean isTerminal(Method method) {
@@ -76,7 +83,7 @@ final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> im
     }
 
     @Override
-    public Map<String, Object> getProperties() {
-        return new HashMap<>(propertyValues);
+    public PMap<String, Object> getProperties() {
+        return propertyValues;
     }
 }
