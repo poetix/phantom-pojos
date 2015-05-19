@@ -1,7 +1,11 @@
 package com.codepoetics.phantompojo;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +23,7 @@ public class PhantomTest {
 
         interface Builder extends Supplier<Address> {
             Builder withAddressLines(String...addressLines);
+            Builder withAddressLines(List<String> addressLines);
             Builder withPostcode(String postcode);
         }
 
@@ -38,13 +43,14 @@ public class PhantomTest {
         interface Builder extends Supplier<Person> {
             Builder withName(String name);
             Builder withAge(int age);
+            Builder withFriends(List<Person> friends);
             Builder withFriends(Builder...friendBuilders);
             Builder withAddress(Address address);
             Builder withAddress(Address.Builder addressBuilder);
         }
 
         static Builder builder() {
-            return PhantomBuilder.building(Person.class);
+            return PhantomBuilder.building(Person.class).withAge(-1);
         }
 
         String getName();
@@ -52,8 +58,15 @@ public class PhantomTest {
         List<Person> getFriends();
         Address getAddress();
 
+        @JsonIgnore
         default String getPostcode() {
             return getAddress().getPostcode();
+        }
+
+        @JsonCreator
+        static Person create(
+                Map<String, Object> properties) {
+            return PhantomPojo.wrapping(properties).with(Person.class);
         }
     }
 
@@ -100,20 +113,6 @@ public class PhantomTest {
     }
 
     @Test public void
-    templating() {
-        Person.Builder template = Person.builder().withName("Arthur").withAge(42);
-
-        Person person1 = template.withAge(23).get();
-        Person person2 = template.withName("Martha").get();
-
-        assertThat(person1.getName(), equalTo("Arthur"));
-        assertThat(person1.getAge(), equalTo(23));
-
-        assertThat(person2.getName(), equalTo("Martha"));
-        assertThat(person2.getAge(), equalTo(42));
-    }
-
-    @Test public void
     lenses() {
         Person harry = Person.builder()
                 .withName("Harry")
@@ -139,7 +138,7 @@ public class PhantomTest {
                         .withPostcode("VB6 5UX"))
                 .get();
 
-        Map<String, Object> properties = harry.getProperties();
+        Map<String, Object> properties = harry.properties();
 
         Person rewrapped = PhantomPojo.wrapping(properties).with(Person.class);
 
@@ -195,5 +194,27 @@ public class PhantomTest {
                 .get();
 
         assertThat(harry.getPostcode(), equalTo("VB6 5UX"));
+    }
+
+    @Test public void
+    jackson_mapping() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        Person harry = Person.builder()
+                .withName("Harry")
+                .withAge(42)
+                .withFriends(
+                        Person.builder().withName("Fred"),
+                        Person.builder().withName("Jerry").withAge(54))
+                .withAddress(Address.builder()
+                        .withAddressLines("23 Acacia Avenue", "Surbiton")
+                        .withPostcode("VB6 5UX"))
+                .get();
+
+        String json = mapper.writeValueAsString(harry);
+
+        Person deserialised = mapper.readValue(json, Person.class);
+
+        assertThat(harry, equalTo(deserialised));
     }
 }

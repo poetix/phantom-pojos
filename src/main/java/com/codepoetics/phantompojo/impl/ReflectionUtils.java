@@ -1,11 +1,11 @@
-package com.codepoetics.phantompojo;
+package com.codepoetics.phantompojo.impl;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-final class ReflectionUtils {
+public final class ReflectionUtils {
     private ReflectionUtils() {
     }
 

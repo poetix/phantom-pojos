@@ -1,4 +1,6 @@
-package com.codepoetics.phantompojo;
+package com.codepoetics.phantompojo.impl;
+
+import com.codepoetics.phantompojo.impl.ReflectionUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
