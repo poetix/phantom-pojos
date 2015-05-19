@@ -47,13 +47,13 @@ final class PhantomPojoProxy<T extends PhantomPojo<B>, B extends Supplier<T>> im
     private Object promote(Type targetType, Object actual) {
         Class<?> targetClass = ReflectionUtils.rawTypeOf(targetType);
 
-        if (Map.class.isAssignableFrom(actual.getClass())
+        if (actual instanceof Map
             && PhantomPojo.class.isAssignableFrom(targetClass)) {
                 return PhantomPojo.wrapping((Map<String, Object>) actual)
                         .with((Class<? extends PhantomPojo<?>>) targetClass);
         }
 
-        if (List.class.isAssignableFrom(actual.getClass())) {
+        if (actual instanceof List) {
             Type listType = ReflectionUtils.getFirstTypeArgument(targetType);
             return ((List<?>) actual).stream()
                     .map(item -> promote(listType, item))
