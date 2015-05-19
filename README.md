@@ -6,9 +6,6 @@ An ```PhantomPojo``` is a bean-like object defined using two interfaces:
 ```java
 public interface Person extends PhantomPojo<Person.Builder> {
 
-    Lens<Person, Integer> age = Lens.onPhantom(Person::getAge, Builder::withAge);
-    Lens<Person, Address> address = Lens.onPhantom(Person::getAddress, Builder::withAddress);
-
     interface Builder extends Supplier<Person> {
         Builder withName(String name);
         Builder withAge(int age);
