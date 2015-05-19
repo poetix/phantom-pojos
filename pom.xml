@@ -54,9 +54,9 @@
 
 
     <scm>
-        <connection>scm:git:git://github.com/poetix/navn.git</connection>
-        <developerConnection>scm:git:git@github.com:poetix/navn.git</developerConnection>
-        <url>http://github.com/poetix/navn</url>
+        <connection>scm:git:git://github.com/poetix/phantom-pojos.git</connection>
+        <developerConnection>scm:git:git@github.com:poetix/phantom-pojos.git</developerConnection>
+        <url>http://github.com/poetix/phantom-pojos</url>
     </scm>
 
 
