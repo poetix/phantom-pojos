@@ -56,7 +56,7 @@ Once it has been created it cannot be changed, but a modified copy can be create
 Person henrietta = henry.update().withName("Henrietta").get();
 ```
 
-A ```PhantomPojo``` wraps a simple ```Map<String, Object>``` of property values, and can be created directly out of such a map:
+A ```PhantomPojo``` wraps an array of property values, and can be created directly out of a map of property names to property values:
 
 ```java
 Map<String, Object> properties = new HashMap<>();
@@ -67,10 +67,10 @@ Person angie = PhantomPojo.wrapping(properties).with(Person.class);
 assertThat(angie.getAge(), equalTo(63));
 ```
 
-You can always retrieve this map of property values from the ```PhantomPojo``` via its ```getProperties``` method:
+You can always retrieve this map of property values from the ```PhantomPojo``` via its ```properties``` method:
 
 ```java
-assertThat(angie.getProperties().get("name"), equalTo("Angie"));
+assertThat(angie.properties().get("name"), equalTo("Angie"));
 ```
 
 Nested maps are automatically promoted to ```PhantomPojo```s:
