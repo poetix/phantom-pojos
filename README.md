@@ -1,4 +1,7 @@
 # phantom-pojos
+
+[![Build Status](https://travis-ci.org/poetix/phantom-pojos.svg?branch=master)](https://travis-ci.org/poetix/phantom-pojos)
+
 Immutable value types and builders implemented with dynamic proxies.
 
 An ```PhantomPojo``` is a bean-like object defined using two interfaces:
