@@ -71,19 +71,4 @@ public final class PojoProperties {
         return values;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(names, types);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof PojoProperties)) {
-            return false;
-        }
-        PojoProperties otherPojoProperties = (PojoProperties) other;
-        return Arrays.equals(names, otherPojoProperties.names)
-                && Arrays.equals(types, otherPojoProperties.types);
-    }
-
 }

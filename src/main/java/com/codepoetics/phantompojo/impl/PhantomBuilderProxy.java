@@ -18,12 +18,16 @@ final class PhantomBuilderProxy<P extends PhantomPojo<B>, B extends Supplier<P>>
     }
 
     @Override
-    public Object invokeMissing(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invokeMissing(Object proxy, Method method, Object[] args) {
         store.write(method, reify(args[0]));
         return proxy;
     }
 
     private Object reify(Object arg) {
+        if (arg == null) {
+            return null;
+        }
+
         if (arg.getClass().isArray()) {
             return Stream.of((Object[]) arg).map(this::reify).collect(Collectors.toList());
         }

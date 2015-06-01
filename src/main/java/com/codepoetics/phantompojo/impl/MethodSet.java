@@ -15,7 +15,20 @@ import java.util.stream.Stream;
 public final class MethodSet {
 
     public static MethodSet forClasses(Class<?> phantomClass, Class<?> builderClass) {
-        return new MethodSet(gettersByName(phantomClass), buildersByName(builderClass));
+        Map<String, Method> getterMethodsByName = gettersByName(phantomClass);
+        Map<String, List<Method>> builderMethodsByName = buildersByName(builderClass);
+
+        verifyMatchingFieldNames(getterMethodsByName.keySet(), builderMethodsByName.keySet());
+
+        return new MethodSet(getterMethodsByName, builderMethodsByName);
+    }
+
+    private static void verifyMatchingFieldNames(Set<String> getterFieldNames, Set<String> builderFieldNames) {
+        if (!getterFieldNames.equals(builderFieldNames)) {
+            throw new IllegalArgumentException(
+                    String.format("Mismatch between pojo fields %s and builder fields %s",
+                            getterFieldNames, builderFieldNames));
+        }
     }
 
     private static Map<String, Method> gettersByName(Class<?> phantomClass) {
@@ -45,17 +58,6 @@ public final class MethodSet {
     private MethodSet(Map<String, Method> getterMethodsByName, Map<String, List<Method>> builderMethodsByName) {
         this.getterMethodsByName = getterMethodsByName;
         this.builderMethodsByName = builderMethodsByName;
-    }
-
-    public void verifyMatchingFieldNames() {
-        Set<String> getterFieldNames = getterMethodsByName.keySet();
-        Set<String> builderFieldNames = builderMethodsByName.keySet();
-
-        if (!getterFieldNames.equals(builderFieldNames)) {
-            throw new IllegalArgumentException(
-                    String.format("Mismatch between pojo fields %s and builder fields %s",
-                            getterFieldNames, builderFieldNames));
-        }
     }
 
     public PojoProperties getPojoProperties() {

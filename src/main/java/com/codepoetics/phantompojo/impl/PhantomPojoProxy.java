@@ -20,7 +20,7 @@ final class PhantomPojoProxy<P extends PhantomPojo<B>, B extends Supplier<P>> im
     }
 
     @Override
-    public Object invokeMissing(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invokeMissing(Object proxy, Method method, Object[] args) {
         return store.read(method);
     }
 

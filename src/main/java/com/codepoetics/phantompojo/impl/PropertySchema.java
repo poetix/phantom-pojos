@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 
 public final class PropertySchema {
 
-    public static PropertySchema forPhantomClass(Class<?> phantomClass, MethodSet methodSet) {
+    static PropertySchema forPhantomClass(Class<?> phantomClass, MethodSet methodSet) {
         PojoProperties pojoProperties = methodSet.getPojoProperties();
         MethodIndexLookup methodIndexLookup = pojoProperties.createMethodIndexLookup(methodSet);
 
@@ -18,7 +18,7 @@ public final class PropertySchema {
     private final PojoProperties pojoProperties;
     private final MethodIndexLookup methodIndexLookup;
 
-    public PropertySchema(String phantomName, PojoProperties pojoProperties, MethodIndexLookup methodIndexLookup) {
+    private PropertySchema(String phantomName, PojoProperties pojoProperties, MethodIndexLookup methodIndexLookup) {
         this.phantomName = phantomName;
         this.pojoProperties = pojoProperties;
         this.methodIndexLookup = methodIndexLookup;
@@ -49,16 +49,4 @@ public final class PropertySchema {
         return pojoProperties.createMap(values);
     }
 
-    @Override
-    public int hashCode() {
-        return pojoProperties.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof PropertySchema)) {
-            return false;
-        }
-        return pojoProperties.equals(((PropertySchema) other).pojoProperties);
-    }
 }

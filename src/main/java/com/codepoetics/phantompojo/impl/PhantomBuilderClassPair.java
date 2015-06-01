@@ -12,6 +12,7 @@ public final class PhantomBuilderClassPair<P extends PhantomPojo<B>, B extends S
 
     private static final ConcurrentMap<Class<?>, PhantomBuilderClassPair<?, ?>> cache = new ConcurrentHashMap<>();
 
+    @SuppressWarnings("unchecked")
     public static <P extends PhantomPojo<B>, B extends Supplier<P>> PhantomBuilderClassPair<P, B> forPhantomClass(Class<? extends P> phantomClass) {
         return (PhantomBuilderClassPair) cache.computeIfAbsent(phantomClass, cls -> forPhantomClassUncached((Class) cls));
     }
