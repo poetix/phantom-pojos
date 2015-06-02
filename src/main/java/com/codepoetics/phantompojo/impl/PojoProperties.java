@@ -71,4 +71,8 @@ public final class PojoProperties {
         return values;
     }
 
+    public Type getType(int index) {
+        return types[index];
+    }
+
 }

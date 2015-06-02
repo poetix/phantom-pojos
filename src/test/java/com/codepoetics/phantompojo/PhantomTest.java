@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,7 +20,7 @@ public class PhantomTest {
 
         interface Builder extends Supplier<Address> {
             Builder withAddressLines(String...addressLines);
-            Builder withAddressLines(List<String> addressLines);
+            Builder withAddressLines(Collection<String> addressLines);
             Builder withPostcode(String postcode);
         }
 
@@ -43,10 +40,11 @@ public class PhantomTest {
         interface Builder extends Supplier<Person> {
             Builder withName(String name);
             Builder withAge(int age);
-            Builder withFriends(List<Person> friends);
             Builder withFriends(Builder...friendBuilders);
             Builder withAddress(Address address);
             Builder withAddress(Address.Builder addressBuilder);
+            Builder withNicknames(String...nicknames);
+            Builder withNicknames(Collection<String> nicknames);
         }
 
         static Builder builder() {
@@ -57,6 +55,7 @@ public class PhantomTest {
         int getAge();
         List<Person> getFriends();
         Address getAddress();
+        Set<String> getNicknames();
 
         @JsonIgnore
         default String getPostcode() {
@@ -185,6 +184,50 @@ public class PhantomTest {
     }
 
     @Test public void
+    promotion_handles_sets() {
+        Map<String, Object> harryProperties = new HashMap<>();
+        harryProperties.put("name", "Harry");
+        harryProperties.put("age", 37);
+
+        Set<String> nicknames = new HashSet<>();
+        nicknames.add("'orrible 'arry");
+        nicknames.add("Harry the Hat");
+
+        harryProperties.put("nicknames", nicknames);
+
+        Person harry = PhantomPojo.wrapping(harryProperties).with(Person.class);
+
+        assertThat(harry.getNicknames(), hasItems("'orrible 'arry", "Harry the Hat"));
+    }
+
+    @Test public void
+    promotion_converts_between_collection_types() {
+        Map<String, Object> harryProperties = new HashMap<>();
+        harryProperties.put("name", "Harry");
+        harryProperties.put("age", 37);
+
+        Map<String, Object> sallyProperties = new HashMap<>();
+        sallyProperties.put("name", "Sally");
+        sallyProperties.put("age", 38);
+
+        Map<String, Object> steveProperties = new HashMap<>();
+        steveProperties.put("name", "Steve");
+        steveProperties.put("age", 29);
+
+        Set<Map<String, Object>> friendSet = new HashSet<>();
+        friendSet.add(sallyProperties);
+        friendSet.add(steveProperties);
+        harryProperties.put("friends", friendSet);
+
+        Person harry = PhantomPojo.wrapping(harryProperties).with(Person.class);
+        Person sally = PhantomPojo.wrapping(sallyProperties).with(Person.class);
+        Person steve = PhantomPojo.wrapping(steveProperties).with(Person.class);
+
+        assertThat(harry.getFriends(), hasItems(sally, steve));
+    }
+
+
+    @Test public void
     default_methods() {
         Person harry = Person.builder()
                 .withName("Harry")
@@ -216,5 +259,27 @@ public class PhantomTest {
         Person deserialised = mapper.readValue(json, Person.class);
 
         assertThat(harry, equalTo(deserialised));
+    }
+
+    @Test public void
+    flexible_collection_creation() {
+        Set<String> nicknameSet = new HashSet<>();
+        nicknameSet.add("'orrible 'arry");
+        nicknameSet.add("Harry the Hat");
+
+        assertThat(Person.builder()
+                .withName("Harry")
+                .withNicknames("Harry the Hat", "'orrible 'arry")
+                .get().getNicknames(), equalTo(nicknameSet));
+
+        assertThat(Person.builder()
+                .withName("Harry")
+                .withNicknames(Arrays.asList("Harry the Hat", "'orrible 'arry"))
+                .get().getNicknames(), equalTo(nicknameSet));
+
+        assertThat(Person.builder()
+                .withName("Harry")
+                .withNicknames(nicknameSet)
+                .get().getNicknames(), equalTo(nicknameSet));
     }
 }

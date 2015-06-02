@@ -1,6 +1,7 @@
 package com.codepoetics.phantompojo.impl;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -21,6 +22,10 @@ public class PropertyStore {
 
     public void write(Method method, Object value) {
         values[schema.getWriteIndex(method)] = value;
+    }
+
+    public Type getTargetType(Method writeMethod) {
+        return schema.getTargetType(writeMethod);
     }
 
     public PropertyStore copy() {

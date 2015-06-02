@@ -49,4 +49,7 @@ public final class PropertySchema {
         return pojoProperties.createMap(values);
     }
 
+    public Type getTargetType(Method writeMethod) {
+        return pojoProperties.getType(getWriteIndex(writeMethod));
+    }
 }
