@@ -3,6 +3,7 @@ package com.codepoetics.phantompojo.impl;
 import com.codepoetics.phantompojo.*;
 
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
@@ -27,9 +28,13 @@ public final class PhantomBuilderClassPair<P extends PhantomPojo<B>, B extends S
     private static <B extends Supplier<T>, T extends PhantomPojo<B>> Class<? extends B> getBuilderClass(Class<? extends T> targetClass) {
         return Stream.of(targetClass.getGenericInterfaces())
                 .filter(t -> PhantomPojo.class.equals(ReflectionUtils.rawTypeOf(t)))
-                .map(ReflectionUtils::<B>getFirstTypeArgument)
+                .map(PhantomBuilderClassPair::<B>getClassOfFirstTypeArgument)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Cannot infer builder class from class " + targetClass));
+    }
+
+    private static <B> Class<? extends B> getClassOfFirstTypeArgument(Type t) {
+        return (Class<? extends B>) ReflectionUtils.rawTypeOf(ReflectionUtils.getFirstTypeArgument(t));
     }
 
     private final Class<? extends P> phantomClass;

@@ -15,8 +15,8 @@ public final class ReflectionUtils {
                 : type);
     }
 
-    public static <B> Class<? extends B> getFirstTypeArgument(Type type) {
-        return (Class<? extends B>) ((ParameterizedType) type).getActualTypeArguments()[0];
+    public static Type getFirstTypeArgument(Type type) {
+        return ((ParameterizedType) type).getActualTypeArguments()[0];
     }
 
     private static final ConcurrentMap<Class<?>, MethodHandles.Lookup> lookups = new ConcurrentHashMap<>();
