@@ -40,6 +40,7 @@ public class PhantomTest {
         interface Builder extends Supplier<Person> {
             Builder withName(String name);
             Builder withAge(int age);
+            Builder withLotteryNumbers(int...numbers);
             Builder withFriends(Builder...friendBuilders);
             Builder withAddress(Address address);
             Builder withAddress(Address.Builder addressBuilder);
@@ -53,6 +54,7 @@ public class PhantomTest {
 
         String getName();
         int getAge();
+        Set<Integer> getLotteryNumbers();
         List<Person> getFriends();
         Address getAddress();
         Set<String> getNicknames();
@@ -74,6 +76,7 @@ public class PhantomTest {
         Person test = Person.builder()
                 .withName("Henry")
                 .withAge(42)
+                .withLotteryNumbers(23, 12, 15, 52, 19)
                 .withFriends(Person.builder()
                     .withName("Jerry")
                     .withAge(33)
@@ -81,6 +84,7 @@ public class PhantomTest {
                 .get();
 
         assertThat(test.getName(), equalTo("Henry"));
+        assertThat(test.getLotteryNumbers(), hasItems(23, 12, 15, 52, 19));
         assertThat(test.getFriends().get(0).getName(), equalTo("Jerry"));
         assertThat(test.getFriends().get(0).getAge(), equalTo(33));
 
