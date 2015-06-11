@@ -51,4 +51,15 @@ public final class ReflectionUtils {
                 .bindTo(proxy)
                 .invokeWithArguments(args);
     }
+
+    public static Object[] toObjectArray(Object arg) {
+        if (arg instanceof Object[]) {
+            return (Object[]) arg;
+        }
+        Object[] result = new Object[Array.getLength(arg)];
+        for (int i = 0; i < Array.getLength(arg); i++) {
+            result[i] = Array.get(arg, i);
+        }
+        return result;
+    }
 }

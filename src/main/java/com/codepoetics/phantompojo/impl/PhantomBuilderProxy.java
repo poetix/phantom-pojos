@@ -2,7 +2,6 @@ package com.codepoetics.phantompojo.impl;
 
 import com.codepoetics.phantompojo.PhantomPojo;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -39,23 +38,12 @@ final class PhantomBuilderProxy<P extends PhantomPojo<B>, B extends Supplier<P>>
         }
 
         if (arg.getClass().isArray()) {
-            return reifyStream(targetType, Stream.of(toObjectArray(arg)));
+            return reifyStream(targetType, Stream.of(ReflectionUtils.toObjectArray(arg)));
         }
 
         return arg instanceof Supplier
                 ? ((Supplier<?>) arg).get()
                 : arg;
-    }
-
-    private Object[] toObjectArray(Object arg) {
-        if (arg instanceof Object[]) {
-            return (Object[]) arg;
-        }
-        Object[] result = new Object[Array.getLength(arg)];
-        for (int i = 0; i < Array.getLength(arg); i++) {
-            result[i] = Array.get(arg, i);
-        }
-        return result;
     }
 
     private Object reifyStream(Type targetType, Stream<Object> argStream) {

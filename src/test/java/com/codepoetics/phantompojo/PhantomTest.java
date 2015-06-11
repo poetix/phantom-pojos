@@ -78,9 +78,9 @@ public class PhantomTest {
                 .withAge(42)
                 .withLotteryNumbers(23, 12, 15, 52, 19)
                 .withFriends(Person.builder()
-                    .withName("Jerry")
-                    .withAge(33)
-                    .withFriends())
+                        .withName("Jerry")
+                        .withAge(33)
+                        .withFriends())
                 .get();
 
         assertThat(test.getName(), equalTo("Henry"));
@@ -158,9 +158,11 @@ public class PhantomTest {
         personProperties.put("name", "Harry");
         personProperties.put("age", 37);
         personProperties.put("address", addressProperties);
+        personProperties.put("lotteryNumbers", new int[] { 1, 2, 3, 4 });
 
         Person person = PhantomPojo.wrapping(personProperties).with(Person.class);
 
+        assertThat(person.getLotteryNumbers(), hasItems(1, 2, 3, 4));
         assertThat(person.getAddress().getPostcode(), equalTo("RA8 81T"));
     }
 

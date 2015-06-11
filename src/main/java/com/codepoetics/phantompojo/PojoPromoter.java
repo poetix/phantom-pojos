@@ -25,8 +25,12 @@ final class PojoPromoter {
             return object;
         }
 
+        if (object.getClass().isArray()) {
+            return promoteStream(Stream.of(ReflectionUtils.toObjectArray(object)), rawType, ReflectionUtils.getFirstTypeArgument(type));
+        }
+
         if (object instanceof Collection) {
-            return promoteCollection(type, (Collection<Object>) object, rawType);
+            return promoteStream(((Collection<Object>) object).stream(), rawType, ReflectionUtils.getFirstTypeArgument(type));
         }
 
         if (!rawType.isAssignableFrom(object.getClass())) {
@@ -36,16 +40,15 @@ final class PojoPromoter {
         return object;
     }
 
-    static Object promoteCollection(Type itemType, Collection<Object> object, Class<?> rawType) {
-        Stream<Object> promotedStream = object.stream()
-                .map(item -> promote(ReflectionUtils.getFirstTypeArgument(itemType), item));
-        if (rawType.equals(List.class)) {
+    static Object promoteStream(Stream<Object> stream, Class<?> collectionType, Type itemType) {
+        Stream<Object> promotedStream = stream.map(item -> promote(itemType, item));
+        if (collectionType.equals(List.class)) {
             return promotedStream.collect(Collectors.toList());
         }
-        if (rawType.equals(Set.class)) {
+        if (collectionType.equals(Set.class)) {
             return promotedStream.collect(Collectors.toSet());
         }
 
-        throw new IllegalArgumentException("Unable to convert collection to type " + rawType.getSimpleName());
+        throw new IllegalArgumentException("Unable to convert collection to type " + collectionType.getSimpleName());
     }
 }
