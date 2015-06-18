@@ -10,7 +10,7 @@
 
     <groupId>com.codepoetics</groupId>
     <artifactId>phantom-pojo</artifactId>
-    <version>0.7</version>
+    <version>0.8-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>com.codepoetics</groupId>
