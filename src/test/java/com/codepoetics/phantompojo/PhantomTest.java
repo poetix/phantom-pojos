@@ -288,4 +288,13 @@ public class PhantomTest {
                 .withNicknames(nicknameSet)
                 .get().getNicknames(), equalTo(nicknameSet));
     }
+
+    @Test public void
+    hashcode() {
+        Person person1 = Person.builder().withName("Person").withLotteryNumbers(1, 2, 3).get();
+        Person person2 = Person.builder().withName("Person").withLotteryNumbers(3, 2, 1).get();
+
+        assertThat(person1, equalTo(person2));
+        assertThat(person1.hashCode(), equalTo(person2.hashCode()));
+    }
 }

@@ -38,7 +38,7 @@ public class PropertyStore {
 
     @Override
     public int hashCode() {
-        return Objects.hash(values, schema);
+        return Objects.hash(Arrays.hashCode(values), schema);
     }
 
     @Override
@@ -47,6 +47,7 @@ public class PropertyStore {
             return false;
         }
         PropertyStore otherStore = (PropertyStore) other;
+
         return Arrays.deepEquals(values, otherStore.values)
                 && Objects.equals(schema, otherStore.schema);
     }
